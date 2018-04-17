@@ -6,11 +6,11 @@ public class BinaryHeap <Key extends Comparable<Key>>
 	
 	private ArrayList<Key> heap;
 	
-	//Constructor
 	public BinaryHeap()
 	{
 		heap = new ArrayList<>();
-	}
+	}//end constructor
+	
 	
 	//Add an element to the heap
 	public void insert(Key key)
@@ -19,28 +19,34 @@ public class BinaryHeap <Key extends Comparable<Key>>
 		heapifyUp(heap.size() - 1);
 	}//end insert
 	
+	
 	//As long as a child is smaller than its parent, swaps the child and parent until
 	//the min heap condition is satisfied
 	private void heapifyUp(int index)
 	{
-		for(int i = index; i > 0; i--)
+		while(true)
 		{
-			int comparison = heap.get(i).compareTo(heap.get((i-1)/2));
-			if(comparison > 0)
+			int parent = (index - 1)/2;
+			int comparison = heap.get(index).compareTo(heap.get(parent));
+			if(comparison < 0)
 			{
-				return;
+				swap(index, parent);
+				index = parent;
+				continue;
 			}
-			swap(i, (i-1)/2);
+			return;
 		}
 	}//end heapifyUp
 
+	
 	//swaps items in two positions of the heap ArrayList
 	private void swap(int a, int b)
 	{
 		Key temp = heap.get(a);
 		heap.set(a, heap.get(b));
 		heap.set(b,  temp);
-	}
+	}//end swap
+	
 	
 	//remove the min element from the heap and return it
 	public Key deleteMin()
@@ -52,10 +58,13 @@ public class BinaryHeap <Key extends Comparable<Key>>
 
 		Key root = heap.get(0);
 			
-		//TODO: Delete
+		heap.set(0, heap.get(heap.size() - 1));	//replace root with last item in array
+		heap.remove(heap.size() - 1);
+		heapifyDown(0);
 		
 		return root;
-	}
+	}//end deleteMin
+	
 	
 	//Remove an item from the heap
 	//If the item exists, return true
@@ -78,33 +87,128 @@ public class BinaryHeap <Key extends Comparable<Key>>
 		heap.remove(heap.size() - 1);				//Remove the duplicate item from the end of the array
 		
 		//If the last item in the array is removed, then heapifyDown is not needed
-		if(index != heap.size() - 1)
+		if(index != heap.size())
 		{
-			heapifyDown(0);
+			heapifyDown(index);
 		}
 		return true;
-	}
+	}//end remove
+	
 	
 	private void heapifyDown(int index)
 	{
-		//TODO: heapifyDown
-	}
+		int size = heap.size() - 1;
+		
+		while(true)
+		{
+			int leftChild = 2 * index + 1;
+			int rightChild = 2 * index + 2;
+			
+			if(rightChild > size)
+			{
+				//neither child exists, then at bottom level of heap
+				if(leftChild >= size)
+				{
+					return;
+				}
+				//only the left child exists
+				else	
+				{
+					int comparison = (heap.get(leftChild).compareTo(heap.get(index)));
+					if(comparison < 0)
+					{
+						swap(leftChild, index);
+						index = leftChild;
+						continue;
+					}
+					else
+					{
+						return;
+					}
+					
+				}
+			}
+			//both children exist
+			else
+			{
+				//find smallest
+				int comparison = (heap.get(leftChild).compareTo(heap.get(rightChild)));
+				if(comparison < 0)	//left < right
+				{
+					comparison = (heap.get(leftChild).compareTo(heap.get(index)));
+					if(comparison < 0)
+					{
+						swap(leftChild, index);
+						index = leftChild;
+						continue;
+					}
+					else
+					{
+						return;
+					}
+				}
+				else	//right < left
+				{
+					comparison = (heap.get(rightChild).compareTo(heap.get(index)));
+					if(comparison < 0)
+					{
+						swap(rightChild, index);
+						index = rightChild;
+						continue;
+					}
+					else
+					{
+						return;
+					}
+				}
+			}//end if
+		}//end while
+	}//end heapifyDown
+	
 	
 	//Return an array that is a sorted representation of the data in the heap (destructive)
 	public Key[] heapSort()
 	{
-		//TODO: heapSort
-		return null;
-	}
+		Comparable[] array = new Comparable[heap.size()];
+		for(int i = 0; heap.size() > 0; i++)
+		{
+			array[i] = deleteMin();
+		}
+		return (Key[]) array;
+	}//end heapSort
 	
 	//Create a union of this heap with the parameter heap
-	public void union(BinaryHeap b)
+	public void union(BinaryHeap<Key> b)
 	{
-		//TODO: union
-	}
+		Comparable[] array = (Key[]) b.toArray();
+		
+		for(int i = 0; i < array.length; i++)
+		{
+			this.insert((Key) array[i]);
+		}
+	}//end union
+	
 	
 	public String toString()
 	{
 		return heap.toString();
 	}//end toString
+	
+	
+	public boolean isEmpty()
+	{
+		return heap.isEmpty();
+	}//end isEmpty
+	
+	//returns the current unsorted heap
+	private Comparable[] toArray()
+	{
+		Comparable[] array = new Comparable[heap.size()];
+		for(int i = 0; i < heap.size(); i++)
+		{
+			array[i] = heap.get(i);
+		}
+		
+		return array;
+	}//end toArray
 }
